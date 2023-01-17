@@ -1,6 +1,6 @@
 package com.fernandoherrera.pokedexapp.data.remote.responses
 
 data class GenerationVi(
-    val omegaruby-alphasapphire: OmegarubyAlphasapphire,
-    val x-y: XY
+    val omegarubyalphasapphire: OmegarubyAlphasapphire,
+    val xy: XY
 )

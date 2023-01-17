@@ -2,5 +2,5 @@ package com.fernandoherrera.pokedexapp.data.remote.responses
 
 data class GenerationVii(
     val icons: Icons,
-    val ultra-sun-ultra-moon: UltraSunUltraMoon
+    val ultrasunultramoon: UltraSunUltraMoon
 )
