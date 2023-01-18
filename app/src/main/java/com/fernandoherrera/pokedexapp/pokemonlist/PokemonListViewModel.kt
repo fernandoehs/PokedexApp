@@ -3,6 +3,7 @@ package com.fernandoherrera.pokedexapp.pokemonlist
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
@@ -57,7 +58,7 @@ class PokemonListViewModel @Inject constructor(
                 }
 
                 is Resource.Error -> {
-                    loadError.value = (result.message ?: "Unknown Error")
+                    loadError.value = (result.message ?: " ")
                     isLoading.value = false
 
                 }
