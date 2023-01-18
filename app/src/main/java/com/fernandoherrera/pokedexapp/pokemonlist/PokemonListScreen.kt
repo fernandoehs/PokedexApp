@@ -8,10 +8,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.*
@@ -113,35 +110,86 @@ fun SearchBar(
         }
     }
 }
-
 @Composable
 fun PokemonList(
     navController: NavController,
     viewModel: PokemonListViewModel = hiltViewModel()
-){
-    val pokemonList by remember{ viewModel.pokemonList}
-    val endReached by remember {
-        viewModel.endReached
-    }
-    val loadError by remember {
-        viewModel.loadError
-    }
-    val isLoading by remember {viewModel.isLoading}
+) {
+    val pokemonList by remember { viewModel.pokemonList }
+    val endReached by remember { viewModel.endReached }
+    val loadError by remember { viewModel.loadError }
+    val isLoading by remember { viewModel.isLoading }
+    //val isSearching by remember { viewModel.isSearching }
 
-    LazyColumn(contentPadding = PaddingValues(16.dp)){
-        val itemCount = if(pokemonList.size % 2 == 0){
+    LazyColumn(contentPadding = PaddingValues(16.dp)) {
+        val itemCount = if (pokemonList.size % 2 == 0) {
             pokemonList.size / 2
-        }else{
+        } else {
             pokemonList.size / 2 + 1
         }
-        items(itemCount){
-                if(it >= itemCount - 1 && !endReached){
-                    viewModel.loadPokemonPaginated()
-                }
-                PokedexRow(rowIndex = it, entries = pokemonList, navController = navController)
+        items(itemCount) {
+            if ((it >= itemCount - 1) && !endReached && !isLoading ) {
+                viewModel.loadPokemonPaginated()
+            }
+            PokedexRow(rowIndex = it, entries = pokemonList, navController = navController)
+        }
+    }
+
+    Box(
+        contentAlignment = Center,
+        modifier = Modifier.fillMaxSize()
+    ) {
+        if (isLoading) {
+            CircularProgressIndicator(color = MaterialTheme.colors.primary)
+        }
+        if (loadError.isNotEmpty()) {
+            RetrySection(error = loadError) {
+                viewModel.loadPokemonPaginated()
+            }
         }
     }
 }
+//@Composable
+//fun PokemonList(
+//    navController: NavController,
+//    viewModel: PokemonListViewModel = hiltViewModel()
+//){
+//    val pokemonList by remember{ viewModel.pokemonList}
+//    val endReached by remember {
+//        viewModel.endReached
+//    }
+//    val loadError by remember {
+//        viewModel.loadError
+//    }
+//    val isLoading by remember {viewModel.isLoading}
+//
+//    LazyColumn(contentPadding = PaddingValues(16.dp)){
+//        val itemCount = if(pokemonList.size % 2 == 0){
+//            pokemonList.size / 2
+//        }else{
+//            pokemonList.size / 2 + 1
+//        }
+//        items(itemCount){
+//                if(it >= itemCount - 1 && !endReached){
+//                    viewModel.loadPokemonPaginated()
+//                }
+//                PokedexRow(rowIndex = it, entries = pokemonList, navController = navController)
+//        }
+//    }
+//    Box(
+//        contentAlignment = Center,
+//        modifier = Modifier.fillMaxSize()
+//    ){
+//        if(isLoading){
+//            CircularProgressIndicator(color = MaterialTheme.colors.primary)
+//        }
+//        if(loadError.isNotEmpty()){
+//            RetrySection(error = loadError) {
+//                viewModel.loadPokemonPaginated()
+//            }
+//        }
+//    }
+//}
 
 
 @Composable
@@ -246,4 +294,23 @@ fun PokedexRow(
     }
     Spacer(modifier = Modifier.height((16.dp)))
 
+}
+
+
+@Composable
+fun RetrySection(
+    error: String,
+    onRetry:() -> Unit
+){
+    Column {
+        Text(
+            text = error,
+            color = Color.Red,
+            fontSize = 18.sp
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(onClick = { onRetry() }) {
+            Text(text = "Reintentar")
+        }
+    }
 }

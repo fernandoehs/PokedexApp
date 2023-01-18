@@ -57,7 +57,7 @@ class PokemonListViewModel @Inject constructor(
                 }
 
                 is Resource.Error -> {
-                    loadError.value = result.message!!
+                    loadError.value = (result.message ?: "Unknown Error")
                     isLoading.value = false
 
                 }
