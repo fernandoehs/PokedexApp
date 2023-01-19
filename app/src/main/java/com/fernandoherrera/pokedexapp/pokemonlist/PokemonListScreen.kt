@@ -5,6 +5,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -30,6 +32,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
@@ -37,10 +41,12 @@ import coil.request.ImageRequest
 import com.fernandoherrera.pokedexapp.R
 import com.fernandoherrera.pokedexapp.data.models.PokedexListEntry
 import com.fernandoherrera.pokedexapp.ui.theme.RobotoCondensed
+import dagger.hilt.android.lifecycle.HiltViewModel
 
 @Composable
 fun PokemonListScreen(
-    navController: NavController
+    navController: NavController,
+    viewModel : PokemonListViewModel = hiltViewModel()
 ){
    Surface(
        color = MaterialTheme.colors.background,
@@ -61,7 +67,7 @@ fun PokemonListScreen(
                   .fillMaxWidth()
                   .padding(16.dp)
           ){
-
+              viewModel.searchPokemonList(it)
           }
           Spacer(modifier = Modifier.height(16.dp))
           PokemonList(navController = navController)
@@ -98,7 +104,7 @@ fun SearchBar(
                 .background(Color.White, CircleShape)
                 .padding(horizontal = 20.dp, vertical = 12.dp)
                 .onFocusChanged {
-                    isHintDisplayed = it.isFocused != true
+                    isHintDisplayed = it.isFocused != true && text.isNotEmpty()
                 }
             )
         if(isHintDisplayed){
@@ -119,19 +125,25 @@ fun PokemonList(
     val endReached by remember { viewModel.endReached }
     val loadError by remember { viewModel.loadError }
     val isLoading by remember { viewModel.isLoading }
-    //val isSearching by remember { viewModel.isSearching }
+    val isSearching by remember { viewModel.isSearching }
 
-    LazyColumn(contentPadding = PaddingValues(16.dp)) {
+    LazyVerticalGrid(
+        columns = GridCells.Adaptive(150.dp),
+        contentPadding = PaddingValues(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp)) {
         val itemCount = if (pokemonList.size % 2 == 0) {
             pokemonList.size / 2
         } else {
             pokemonList.size / 2 + 1
         }
         items(itemCount) {
-            if ((it >= itemCount - 1) && !endReached && !isLoading ) {
+            if ((it >= itemCount - 1) && !endReached && !isLoading && !isSearching) {
                 viewModel.loadPokemonPaginated()
             }
-            PokedexRow(rowIndex = it, entries = pokemonList, navController = navController)
+            PokedexRow(
+                rowIndex = it,
+                entries = pokemonList,
+                navController = navController)
         }
     }
 
@@ -271,7 +283,7 @@ fun PokedexEntry(
 fun PokedexRow(
     rowIndex: Int,
     entries: List<PokedexListEntry>,
-    navController: NavController
+    navController: NavController,
 ){
     Column{
         Row{
