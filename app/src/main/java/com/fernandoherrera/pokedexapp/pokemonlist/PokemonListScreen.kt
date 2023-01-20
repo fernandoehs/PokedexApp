@@ -14,6 +14,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
@@ -41,6 +42,7 @@ import coil.request.ImageRequest
 import com.fernandoherrera.pokedexapp.R
 import com.fernandoherrera.pokedexapp.data.models.PokedexListEntry
 import com.fernandoherrera.pokedexapp.ui.theme.RobotoCondensed
+import com.fernandoherrera.pokedexapp.util.ShimmerItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 
 @Composable
@@ -62,7 +64,7 @@ fun PokemonListScreen(
                   .align(CenterHorizontally)
           )
           SearchBar(
-              hint = "Buscar...",
+              hint = " ",
               modifier = Modifier
                   .fillMaxWidth()
                   .padding(16.dp)
@@ -81,7 +83,7 @@ fun SearchBar(
     hint:String = "",
     onSearch: (String) -> Unit = {}
 ){
-    var text by remember {
+    var text by rememberSaveable {
         mutableStateOf("")
     }
     var isHintDisplayed by remember{
@@ -104,7 +106,7 @@ fun SearchBar(
                 .background(Color.White, CircleShape)
                 .padding(horizontal = 20.dp, vertical = 12.dp)
                 .onFocusChanged {
-                    isHintDisplayed = it.isFocused != true && text.isNotEmpty()
+                    isHintDisplayed = (!it.isFocused && text.isNotEmpty())
                 }
             )
         if(isHintDisplayed){
@@ -116,6 +118,7 @@ fun SearchBar(
         }
     }
 }
+
 @Composable
 fun PokemonList(
     navController: NavController,
@@ -152,6 +155,7 @@ fun PokemonList(
         modifier = Modifier.fillMaxSize()
     ) {
         if (isLoading) {
+            //ContentLoading()
             CircularProgressIndicator(color = MaterialTheme.colors.primary)
         }
         if (loadError.isNotEmpty()) {
@@ -161,47 +165,6 @@ fun PokemonList(
         }
     }
 }
-//@Composable
-//fun PokemonList(
-//    navController: NavController,
-//    viewModel: PokemonListViewModel = hiltViewModel()
-//){
-//    val pokemonList by remember{ viewModel.pokemonList}
-//    val endReached by remember {
-//        viewModel.endReached
-//    }
-//    val loadError by remember {
-//        viewModel.loadError
-//    }
-//    val isLoading by remember {viewModel.isLoading}
-//
-//    LazyColumn(contentPadding = PaddingValues(16.dp)){
-//        val itemCount = if(pokemonList.size % 2 == 0){
-//            pokemonList.size / 2
-//        }else{
-//            pokemonList.size / 2 + 1
-//        }
-//        items(itemCount){
-//                if(it >= itemCount - 1 && !endReached){
-//                    viewModel.loadPokemonPaginated()
-//                }
-//                PokedexRow(rowIndex = it, entries = pokemonList, navController = navController)
-//        }
-//    }
-//    Box(
-//        contentAlignment = Center,
-//        modifier = Modifier.fillMaxSize()
-//    ){
-//        if(isLoading){
-//            CircularProgressIndicator(color = MaterialTheme.colors.primary)
-//        }
-//        if(loadError.isNotEmpty()){
-//            RetrySection(error = loadError) {
-//                viewModel.loadPokemonPaginated()
-//            }
-//        }
-//    }
-//}
 
 
 @Composable
@@ -249,10 +212,11 @@ fun PokedexEntry(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 if (state is AsyncImagePainter.State.Loading || state is AsyncImagePainter.State.Error) {
-                    CircularProgressIndicator(
-                        color = MaterialTheme.colors.primary,
-                        modifier = Modifier.scale(0.5f)
-                    )
+//                    CircularProgressIndicator(
+//                        color = MaterialTheme.colors.primary,
+//                        modifier = Modifier.scale(0.5f)
+//                    )
+                    ContentLoading()
                 }
 
                 Image(
@@ -324,5 +288,15 @@ fun RetrySection(
         Button(onClick = { onRetry() }) {
             Text(text = "Reintentar")
         }
+    }
+}
+
+@Composable
+private fun ContentLoading() {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        for (i in 0..22)
+            item { ShimmerItem() }
     }
 }

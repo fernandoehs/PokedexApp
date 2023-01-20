@@ -17,9 +17,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.fernandoherrera.pokedexapp.pokemondetailscreen.PokemonDetailScreen
 import com.fernandoherrera.pokedexapp.pokemonlist.PokemonListScreen
+import com.fernandoherrera.pokedexapp.splashscreen.SplashScreen
 import com.fernandoherrera.pokedexapp.ui.theme.PokedexAppTheme
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.*
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -30,13 +33,16 @@ class MainActivity : ComponentActivity() {
              val navController = rememberNavController()
              NavHost(
                  navController = navController,
-                 startDestination = "pokemon_list_screen"
+                 startDestination = "pokemon_splash_screen"
              ) {
+                 composable("pokemon_splash_screen"){
+                     SplashScreen(navController = navController)
+                 }
                  composable("pokemon_list_screen"){
                     PokemonListScreen(navController = navController)
                  }
                  composable(
-                     "pokemon_detail_screen/{dominantColor}/{pokemonNme}",
+                     "pokemon_detail_screen/{dominantColor}/{pokemonName}",
                         arguments = listOf(
                          navArgument("dominantColor"){
                              type = NavType.IntType
@@ -54,6 +60,11 @@ class MainActivity : ComponentActivity() {
                      val pokemonName = remember{
                          it.arguments?.getString("pokemonName")
                      }
+                     PokemonDetailScreen(
+                         dominantColor = dominantColor,
+                         pokemonName = pokemonName?.lowercase(Locale.ROOT) ?: "",
+                         navController = navController
+                     )
 
                  }
 

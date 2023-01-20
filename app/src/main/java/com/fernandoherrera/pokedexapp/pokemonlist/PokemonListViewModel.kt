@@ -61,6 +61,7 @@ class PokemonListViewModel @Inject constructor(
                 isSearchStarting = false
             }
             pokemonList.value = results
+            isSearching.value = true
         }
     }
 
