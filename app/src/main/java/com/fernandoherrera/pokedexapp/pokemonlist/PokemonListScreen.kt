@@ -1,5 +1,6 @@
 package com.fernandoherrera.pokedexapp.pokemonlist
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -16,8 +18,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.BottomEnd
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
+import androidx.compose.ui.Alignment.Companion.Start
+import androidx.compose.ui.Alignment.Companion.TopEnd
+import androidx.compose.ui.Alignment.Companion.TopStart
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
@@ -26,9 +32,14 @@ import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.White
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -41,9 +52,14 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.fernandoherrera.pokedexapp.R
 import com.fernandoherrera.pokedexapp.data.models.PokedexListEntry
+import com.fernandoherrera.pokedexapp.data.remote.responses.Pokemon
 import com.fernandoherrera.pokedexapp.ui.theme.RobotoCondensed
+import com.fernandoherrera.pokedexapp.ui.theme.appFontFamily
+import com.fernandoherrera.pokedexapp.ui.theme.lightGrey
 import com.fernandoherrera.pokedexapp.util.ShimmerItem
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun PokemonListScreen(
@@ -206,18 +222,22 @@ fun PokedexEntry(
             )
 
             val state = painter.state
-
             Box(
-                contentAlignment = Center,
+                contentAlignment = TopEnd,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 if (state is AsyncImagePainter.State.Loading || state is AsyncImagePainter.State.Error) {
-//                    CircularProgressIndicator(
-//                        color = MaterialTheme.colors.primary,
-//                        modifier = Modifier.scale(0.5f)
-//                    )
                     ContentLoading()
                 }
+
+                Image(
+                    contentDescription = entry.pokemonName,
+                    modifier = Modifier.size(120.dp),
+                    alignment = BottomEnd,
+                    painter =  painterResource(R.drawable.pokeball_s),
+                    alpha = 0.25f,
+                    colorFilter = ColorFilter.tint(color = White)
+                )
 
                 Image(
                     painter = painter,
@@ -226,19 +246,27 @@ fun PokedexEntry(
                 )
             }
 
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 20.dp)
+            ){
+                Text(
+                    text = entry.pokemonName,
+                    fontFamily = appFontFamily,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp,
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier.fillMaxWidth(),
+                    color = Color.DarkGray
+                )
+            }
+
             if (state is AsyncImagePainter.State.Success) {
                 viewModel.calcDominantColor(state.result.drawable) { color ->
                     dominantColor = color
                 }
             }
-
-            Text(
-                text = entry.pokemonName,
-                fontFamily = RobotoCondensed,
-                fontSize = 20.sp,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
         }
     }
 }
@@ -296,7 +324,8 @@ private fun ContentLoading() {
     LazyColumn(
         modifier = Modifier.fillMaxSize()
     ) {
-        for (i in 0..22)
-            item { ShimmerItem() }
+        item{ShimmerItem()}
     }
 }
+
+
