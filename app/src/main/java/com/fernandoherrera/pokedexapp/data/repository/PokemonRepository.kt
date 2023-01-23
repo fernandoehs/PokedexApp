@@ -29,4 +29,5 @@ class PokemonRepository @Inject constructor(
         }
         return Resource.Success(response)
     }
+
 }

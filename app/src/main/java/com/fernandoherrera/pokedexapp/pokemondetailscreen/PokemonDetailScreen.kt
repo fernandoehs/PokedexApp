@@ -1,15 +1,13 @@
 package com.fernandoherrera.pokedexapp.pokemondetailscreen
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.*
@@ -30,13 +28,18 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import coil.compose.rememberAsyncImagePainter
 import com.fernandoherrera.pokedexapp.R
+import com.fernandoherrera.pokedexapp.data.remote.responses.Ability
+import com.fernandoherrera.pokedexapp.data.remote.responses.DiamondPearl
 import com.fernandoherrera.pokedexapp.data.remote.responses.Pokemon
 import com.fernandoherrera.pokedexapp.data.remote.responses.Type
 import com.fernandoherrera.pokedexapp.util.Resource
 import com.fernandoherrera.pokedexapp.util.parseStatToAbbr
 import com.fernandoherrera.pokedexapp.util.parseStatToColor
 import com.fernandoherrera.pokedexapp.util.parseTypeToColor
+import com.google.accompanist.pager.*
+import kotlinx.coroutines.launch
 import java.util.*
 
 @Composable
@@ -57,6 +60,7 @@ fun PokemonDetailScreen(
             .fillMaxSize()
             .background(dominantColor)
             .padding(bottom = 16.dp)
+
     ) {
         PokemonDetailTopSection(
             navController = navController,
@@ -65,31 +69,32 @@ fun PokemonDetailScreen(
                 .fillMaxHeight(0.2f)
                 .align(Alignment.TopCenter)
         )
-        PokemonDetailStateWrapper(
-            pokemonInfo = pokemonInfo,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(
-                    top = topPadding + pokemonImageSize / 2f,
-                    start = 16.dp,
-                    end = 16.dp,
-                    bottom = 16.dp
-                )
-                .shadow(10.dp, RoundedCornerShape(10.dp))
-                .clip(RoundedCornerShape(10.dp))
-                .background(MaterialTheme.colors.surface)
-                .padding(16.dp)
-                .align(Alignment.BottomCenter),
-            loadingModifier = Modifier
-                .size(100.dp)
-                .align(Alignment.Center)
-                .padding(
-                    top = topPadding + pokemonImageSize / 2f,
-                    start = 16.dp,
-                    end = 16.dp,
-                    bottom = 16.dp
-                )
-        )
+            PokemonDetailStateWrapper(
+                pokemonInfo = pokemonInfo,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(
+                        top = pokemonImageSize / 2f,
+                        start = 16.dp,
+                        end = 16.dp,
+                        bottom = 16.dp
+                    )
+                    .shadow(10.dp, RoundedCornerShape(10.dp))
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(MaterialTheme.colors.surface)
+                    .padding(16.dp)
+                    //.align(Alignment.BottomCenter),
+                    // loadingModifier = Modifier
+                    .size(100.dp)
+                    //.align(Alignment.Center)
+                    .padding(
+                        top = topPadding + pokemonImageSize / 2f,
+                        start = 16.dp,
+                        end = 16.dp,
+                        bottom = 16.dp
+                    )
+            )
+
         Box(
             contentAlignment = Alignment.TopCenter,
             modifier = Modifier.fillMaxSize()
@@ -115,6 +120,22 @@ fun PokemonDetailScreen(
                 }
             }
         }
+        Box(
+            contentAlignment = Alignment.TopCenter,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = 190.dp) ){
+            Text(
+                text = "#${pokemonInfo.data?.id} ${pokemonInfo.data?.name?.replaceFirstChar {
+                    if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString()
+                }}",
+                fontWeight = FontWeight.Bold,
+                fontSize = 30.sp,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colors.onSurface
+            )
+        }
+
     }
 }
 
@@ -193,24 +214,38 @@ fun PokemonDetailSection(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
             .fillMaxSize()
-            .offset(y = 100.dp)
+            .offset(y = 20.dp)
             .verticalScroll(scrollState)
     ) {
-        Text(
-            text = "#${pokemonInfo.id} ${pokemonInfo.name.replaceFirstChar {
-                if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString()
-            }}",
-            fontWeight = FontWeight.Bold,
-            fontSize = 30.sp,
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colors.onSurface
-        )
-        PokemonTypeSection(types = pokemonInfo.types)
-        PokemonDetailDataSection(
-            pokemonWeight = pokemonInfo.weight,
-            pokemonHeight = pokemonInfo.height
-        )
-        PokemonBaseStats(pokemonInfo = pokemonInfo)
+        TabScreen( pokemonInfo )
+    }
+}
+
+@Composable
+fun PokemonAbilitiesSection(abilities: List<Ability>) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(16.dp)
+    ) {
+        for (ability in abilities) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 8.dp)
+                    .clip(CircleShape)
+                    .background(Color.Blue)
+                    .height(35.dp)
+            ) {
+                Text(
+                    text = ability.ability.name.replaceFirstChar {
+                        if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString()
+                    },
+                    color = Color.White,
+                    fontSize = 18.sp
+                )
+            }
+        }
     }
 }
 
@@ -369,7 +404,7 @@ fun PokemonBaseStats(
     ) {
         Spacer(modifier = Modifier.height(10.dp))
         Text(
-            text = "Base stats:",
+            text = "Estatus Base: ",
             fontSize = 20.sp,
             color = MaterialTheme.colors.onSurface
         )
@@ -387,5 +422,182 @@ fun PokemonBaseStats(
             Spacer(modifier = Modifier.height(8.dp))
         }
     }
+}
+
+
+@OptIn(ExperimentalPagerApi::class)
+@Composable
+fun TabScreen(  pokemonInfo: Pokemon) {
+    val pagerState = rememberPagerState(pageCount = 3)
+    Column(
+        modifier = Modifier.background(Color.White)
+    ) {
+        Tabs(pagerState)
+        TabsContent(pagerState = pagerState, pokemonInfo = pokemonInfo)
+    }
+}
+
+@OptIn(ExperimentalPagerApi::class)
+@Composable
+fun TabsContent(pagerState: PagerState, pokemonInfo: Pokemon) {
+    HorizontalPager(state = pagerState) { page ->
+        when (page) {
+            0 -> SectionOne(pokemonInfo = pokemonInfo)
+            1 -> SectionTwo(pokemonInfo = pokemonInfo)
+            2 -> SectionThree(pokemonInfo = pokemonInfo)
+        }
+    }
+}
+
+@OptIn(ExperimentalPagerApi::class)
+@Composable
+fun Tabs(pagerState: PagerState) {
+    val list = listOf("About", "Stats", "Evo")
+    val scope = rememberCoroutineScope()
+    TabRow(
+        selectedTabIndex = pagerState.currentPage,
+        backgroundColor = Color.White,
+        contentColor = Color.Black,
+        divider = {
+            TabRowDefaults.Divider(
+                thickness = 3.dp,
+                color = Color.Black
+            )
+        },
+        indicator = { tabPositions ->
+            TabRowDefaults.Indicator(
+                Modifier.pagerTabIndicatorOffset(pagerState, tabPositions),
+                height = 3.dp,
+                color = Color.LightGray
+            )
+        }
+    ) {
+        list.forEachIndexed { index, _ ->
+            Tab(
+                text = {
+                    Text(
+                        text = list[index],
+                        color = if (pagerState.currentPage == index) Color.Black else Color.DarkGray
+                    )
+                },
+                selected = pagerState.currentPage == index,
+                onClick = {
+                    scope.launch {
+                        pagerState.animateScrollToPage(index)
+                    }
+                },
+            )
+        }
+    }
+}
+
+@Composable
+fun SectionOne(pokemonInfo: Pokemon) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .wrapContentSize(Alignment.Center)
+    ) {
+        Text(
+            text = "Peso y Altura :",
+            fontSize = 20.sp,
+            color = MaterialTheme.colors.onSurface
+        )
+        Spacer(modifier = Modifier.height(15.dp))
+        PokemonDetailDataSection(
+            pokemonWeight = pokemonInfo.weight,
+            pokemonHeight = pokemonInfo.height
+        )
+        Text(
+            text = "Tipo :",
+            fontSize = 20.sp,
+            color = MaterialTheme.colors.onSurface
+        )
+        PokemonTypeSection(types = pokemonInfo.types)
+        Text(
+            text = "Habilidades :",
+            fontSize = 20.sp,
+            color = MaterialTheme.colors.onSurface
+        )
+        PokemonAbilitiesSection(abilities = pokemonInfo.abilities)
+        if (pokemonInfo.held_items.isNotEmpty()){
+            Text(
+                text = "Especial item :",
+                fontSize = 20.sp,
+                color = MaterialTheme.colors.onSurface
+            )
+            Text(
+                text = pokemonInfo.held_items[0].item.name,
+                color = Color.Black,
+                fontSize = 18.sp
+            )
+        }
+        PokemonBaseStats(pokemonInfo = pokemonInfo)
+    }
+}
+
+@Composable
+fun SectionTwo(pokemonInfo: Pokemon) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+    ){
+     Text(text = "En Progreso...")
+    }
+}
+
+@Composable
+fun SectionThree(pokemonInfo: Pokemon) {
+    Column(
+        modifier = Modifier.width(300
+            .dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "Evolución :",
+            fontSize = 20.sp,
+            color = MaterialTheme.colors.onSurface
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+        PokemonEvo(pokemonInfo = pokemonInfo)
+    }
+}
+
+
+@Composable
+fun PokemonEvo(pokemonInfo: Pokemon) {
+
+    fun ImageEvo(generation:String, level:String) ="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/${generation}/${level}/${pokemonInfo?.id}.png"
+
+    val YellowGenI = ImageEvo("generation-i","yellow")
+    val GoldGenII = ImageEvo("generation-ii","gold")
+    val FireredLeafgreenGenIII = ImageEvo("generation-iii","firered-leafgreen")
+    val DiamondPearlGenIV = ImageEvo("generation-iv","diamond-pearl")
+    val BlackWhiteGenV = ImageEvo("generation-v","black-white")
+    val OmegarubyGenVI = ImageEvo("generation-vi","omegaruby-alphasapphire")
+    val UltraGenVII = ImageEvo("generation-vii","ultra-sun-ultra-moon")
+
+    val ListEvoGen = listOf(
+        YellowGenI,
+        GoldGenII,
+        FireredLeafgreenGenIII,
+        DiamondPearlGenIV,
+        BlackWhiteGenV,
+        OmegarubyGenVI,
+        UltraGenVII
+        )
+
+            ListEvoGen.forEachIndexed{ index, item ->
+                    Text(
+                        text =" Generación ${index+1}",
+                        fontSize = 20.sp,
+                        color = MaterialTheme.colors.onSurface
+                    )
+                    Image(
+                        painter = rememberAsyncImagePainter(item),
+                        contentDescription = null,
+                        modifier = Modifier.size(150.dp)
+                    )
+            }
 }
 

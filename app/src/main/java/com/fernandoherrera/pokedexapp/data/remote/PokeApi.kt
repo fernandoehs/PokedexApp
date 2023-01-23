@@ -18,4 +18,5 @@ interface PokeApi {
     suspend fun getPokemonInfo(
         @Path("name") name:String
     ): Pokemon
+
 }
