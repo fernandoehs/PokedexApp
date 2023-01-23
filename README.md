@@ -14,6 +14,13 @@
 - Retrofit para consumo de api
 - Dagger Hilt para inyección de dependencias
 
+## Falta por hacer
+
+- Usar DataStore y/o Room para persistencia de datos
+- Limitar lista a 151 items
+- Realizar una pantalla en el submenú
+- Refactorizar composables 
+
 ## Screenshots
 <div align="center">
   <img src="https://github.com/fernandoehs/PokedexApp/blob/main/splashPokemon.png" width=280>
