@@ -83,10 +83,7 @@ fun PokemonDetailScreen(
                     .clip(RoundedCornerShape(10.dp))
                     .background(MaterialTheme.colors.surface)
                     .padding(16.dp)
-                    //.align(Alignment.BottomCenter),
-                    // loadingModifier = Modifier
                     .size(100.dp)
-                    //.align(Alignment.Center)
                     .padding(
                         top = topPadding + pokemonImageSize / 2f,
                         start = 16.dp,

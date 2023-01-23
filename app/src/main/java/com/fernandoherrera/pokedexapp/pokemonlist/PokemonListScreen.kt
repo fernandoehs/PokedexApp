@@ -1,6 +1,5 @@
 package com.fernandoherrera.pokedexapp.pokemonlist
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -8,7 +7,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -67,18 +65,24 @@ fun PokemonListScreen(
     viewModel : PokemonListViewModel = hiltViewModel()
 ){
    Surface(
-       color = MaterialTheme.colors.background,
+       color = Color.LightGray,
        modifier = Modifier.fillMaxSize()
    ) {
       Column {
           Spacer(modifier = Modifier.height(20.dp))
-          Image(
-              painter = painterResource(id = R.drawable.ic_pokemon_logo),
-              contentDescription = "Pokemon" ,
-              modifier = Modifier
-                  .fillMaxWidth()
-                  .align(CenterHorizontally)
-          )
+          Box(
+              modifier = Modifier.padding(start = 20.dp)
+          ){
+              Text(
+                  text = "Busca tu Pokemon",
+                  fontFamily = appFontFamily,
+                  fontWeight = FontWeight.Bold,
+                  fontSize = 30.sp,
+                  textAlign = TextAlign.Start,
+                  modifier = Modifier.fillMaxWidth(),
+                  color = Color.DarkGray
+              )
+          }
           SearchBar(
               hint = " ",
               modifier = Modifier
@@ -150,20 +154,21 @@ fun PokemonList(
         columns = GridCells.Adaptive(150.dp),
         contentPadding = PaddingValues(16.dp),
         horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-        val itemCount = if (pokemonList.size % 2 == 0) {
+        var itemCount = if (pokemonList.size % 2 == 0) {
             pokemonList.size / 2
         } else {
             pokemonList.size / 2 + 1
         }
-        items(itemCount) {
-            if ((it >= itemCount - 1) && !endReached && !isLoading && !isSearching) {
-                viewModel.loadPokemonPaginated()
+
+            items(itemCount) {
+                if ((it >= itemCount - 1) && !endReached && !isLoading && !isSearching) {
+                    viewModel.loadPokemonPaginated()
+                }
+                PokedexRow(
+                    rowIndex = it,
+                    entries = pokemonList,
+                    navController = navController)
             }
-            PokedexRow(
-                rowIndex = it,
-                entries = pokemonList,
-                navController = navController)
-        }
     }
 
     Box(
@@ -226,6 +231,23 @@ fun PokedexEntry(
                 contentAlignment = TopEnd,
                 modifier = Modifier.fillMaxWidth()
             ) {
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 20.dp),
+                    contentAlignment = TopStart,
+                ){
+                    Text(
+                        text = "#" + entry.number.toString(),
+                        fontFamily = appFontFamily,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp,
+                        textAlign = TextAlign.Start,
+                        modifier = Modifier.fillMaxWidth(),
+                        color = Color.DarkGray
+                    )
+                }
                 if (state is AsyncImagePainter.State.Loading || state is AsyncImagePainter.State.Error) {
                     ContentLoading()
                 }
@@ -280,7 +302,7 @@ fun PokedexRow(
     Column{
         Row{
             PokedexEntry(
-                entry = entries [rowIndex *  2],
+                entry = entries [rowIndex],
                 navController = navController,
                 modifier = Modifier.weight(1f)
             )
