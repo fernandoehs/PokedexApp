@@ -1,7 +1,7 @@
 <h2 align="center"><b>PokedexApp</b></h2>
 <h4 align="center">Un pokedex app usando Jetpack Compose consumiendo Pokeapi</h4>
 <p align="center">
-<a href="https://github.com/fernandoehs/PokedexApp/blob/main/app-debug.apk" alt="GitHub release">Bajar APK</a>
+<a href="https://github.com/fernandoehs/PokedexApp/raw/main/app-debug.apk" alt="GitHub release">Bajar APK</a>
 </p> 
 <hr>
 
