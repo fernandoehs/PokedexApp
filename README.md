@@ -10,7 +10,7 @@
 - Offline caching
 - MVVM arquitectura
 - Coil por imágenes
-- Companion para tabs
+- Accompanist para tabs
 - Retrofit para consumo de api
 - Dagger Hilt para inyección de dependencias
 
