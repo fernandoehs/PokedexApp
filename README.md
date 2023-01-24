@@ -17,7 +17,6 @@
 ## Falta por hacer
 
 - Usar DataStore y/o Room para persistencia de datos
-- Limitar lista a 151 items
 - Realizar una pantalla en el submenú
 - Refactorizar composables 
 
