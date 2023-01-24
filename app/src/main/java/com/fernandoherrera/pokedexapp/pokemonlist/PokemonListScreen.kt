@@ -154,12 +154,8 @@ fun PokemonList(
         columns = GridCells.Adaptive(150.dp),
         contentPadding = PaddingValues(16.dp),
         horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-        var itemCount = if (pokemonList.size % 2 == 0) {
-            pokemonList.size / 2
-        } else {
-            pokemonList.size / 2 + 1
-        }
-
+        val itemCountList = pokemonList.take(151)
+        val itemCount = itemCountList.size
             items(itemCount) {
                 if ((it >= itemCount - 1) && !endReached && !isLoading && !isSearching) {
                     viewModel.loadPokemonPaginated()
